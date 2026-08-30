@@ -1,7 +1,7 @@
 nameOverride: payment-worker
 image:
   repository: seat-booking/payment-worker
-  tag: v1
+  tag: "073c9e9f9f7fd655957a27fee2dd54ed93c4ddbd"
 replicaCount: 1
 port: 8080
 env:
