@@ -23,7 +23,7 @@ data "aws_iam_policy_document" "ci_assume_role" {
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:Pavanteja-001/Devops-Booking:*"]
+      values   = ["repo:Pavanteja-001*/Devops-Booking*:*"]
     }
   }
 }

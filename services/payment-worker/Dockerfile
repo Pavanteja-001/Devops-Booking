@@ -4,6 +4,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --target=/deps -r requirements.txt
 
 FROM python:3.12-slim
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 RUN useradd -u 10001 -m appuser
 WORKDIR /app
 COPY --from=build /deps /usr/local/lib/python3.12/site-packages

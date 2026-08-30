@@ -8,8 +8,11 @@ import BookingHistory from './components/BookingHistory';
 import RazorpayModal from './components/RazorpayModal';
 import PaymentReceiptModal from './components/PaymentReceiptModal';
 
-const API_BASE = window.location.port === "8090" ? `http://${window.location.hostname}:8082` : "http://localhost:8082";
-const WS_BASE = window.location.port === "8090" ? `ws://${window.location.hostname}:8083/ws` : "ws://localhost:8083/ws";
+const isLocalCompose = window.location.port === "8090";
+const API_BASE = isLocalCompose ? `http://${window.location.hostname}:8082` : `${window.location.origin}/bff`;
+const WS_BASE = isLocalCompose
+  ? `ws://${window.location.hostname}:8083/ws`
+  : `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/ws`;
 const USD_TO_INR = 83.0;
 
 export default function App() {
