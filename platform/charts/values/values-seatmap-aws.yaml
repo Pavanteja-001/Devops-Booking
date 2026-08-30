@@ -1,2 +1,6 @@
 image:
   repository: "402631154447.dkr.ecr.ap-south-1.amazonaws.com/seat-booking/seatmap"
+ingress:
+  enabled: true
+  path: /ws
+  pathType: Prefix
