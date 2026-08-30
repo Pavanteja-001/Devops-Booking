@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PRICE_PER_SEAT = 15.0;
+const PRICE_PER_SEAT = 16.0;
 const ROWS = ['A', 'B', 'C', 'D', 'E'];
 const COLS = Array.from({ length: 10 }, (_, i) => i + 1);
 

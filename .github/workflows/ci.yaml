@@ -2,6 +2,11 @@ name: ci
 on:
   push:
     branches: [main]
+    paths:
+      - "services/**"
+      - "frontend/**"
+      - "platform/charts/**"
+      - ".github/workflows/ci.yaml"
   pull_request:
 
 permissions:

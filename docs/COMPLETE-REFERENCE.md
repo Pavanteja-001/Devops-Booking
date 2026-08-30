@@ -713,6 +713,30 @@ staged, all were genuinely hit while building this:
     delete the specific child Application with `--cascade=orphan` (leaves
     the real K8s resources untouched) and let root recreate it fresh.
 
+17. **CI had no path filter — any push, including a docs-only `.md` edit,
+    rebuilt and redeployed all 6 services.** Discovered when pushing this
+    very reference document triggered a full pipeline run and gave every
+    service the same new image tag. Partially fixed by adding a top-level
+    `paths:` filter to `.github/workflows/ci.yaml` (only `services/**`,
+    `frontend/**`, `platform/charts/**`, and the workflow file itself
+    trigger a run) — this stops *irrelevant* changes (docs, Terraform,
+    READMEs) from triggering anything, but does **not** achieve per-service
+    selective builds: a change to just `inventory/` still rebuilds all 6.
+    A proper fix would use something like `dorny/paths-filter` to compute
+    which services actually changed and only include those in the matrix —
+    not implemented here, noted as a known improvement.
+
+18. **A price inconsistency existed in the frontend itself, independent of
+    any infrastructure work**: `SeatMap.jsx` used `PRICE_PER_SEAT = 15.0`
+    while `CheckoutPanel.jsx` used `PRICE_PER_SEAT_USD = 16.0` — the seat
+    tooltip and the checkout total silently disagreed on price. Found
+    during a completeness audit of this document, not during original
+    development. Fixed by aligning both to `16.0`. Worth noting as an
+    example of exactly the kind of small inconsistency that's easy to miss
+    without a deliberate cross-check pass — which is why this document
+    itself went through one after the fact rather than being trusted as
+    complete on first write.
+
 ---
 
 ## 15. Cost and budget
