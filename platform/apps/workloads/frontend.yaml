@@ -15,6 +15,7 @@ spec:
       helm:
         valueFiles:
           - $values/platform/charts/values/values-frontend.yaml
+          - $values/platform/charts/values/values-frontend-aws.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: booking

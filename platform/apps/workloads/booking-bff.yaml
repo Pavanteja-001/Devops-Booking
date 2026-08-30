@@ -15,6 +15,9 @@ spec:
       helm:
         valueFiles:
           - $values/platform/charts/values/values-booking-bff.yaml
+          - $values/platform/charts/values/values-booking-bff-aws.yaml
+          - $values/platform/charts/values/values-booking-bff-aws-irsa.yaml
+          - $values/platform/charts/values/values-booking-bff-aws-queue.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: booking

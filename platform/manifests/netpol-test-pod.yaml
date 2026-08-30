@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: netpol-test
+  namespace: booking
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+  containers:
+    - name: curl
+      image: curlimages/curl:8.10.1
+      command: ["sleep", "300"]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        allowPrivilegeEscalation: false
+      resources:
+        requests: { cpu: 10m, memory: 16Mi }
+        limits: { cpu: 50m, memory: 32Mi }
+      livenessProbe:
+        exec: { command: ["true"] }
+        periodSeconds: 30
+      readinessProbe:
+        exec: { command: ["true"] }
+        periodSeconds: 30
