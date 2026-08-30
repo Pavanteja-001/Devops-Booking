@@ -24,3 +24,7 @@ ingress:
   path: /bff(/|$)(.*)
   pathType: ImplementationSpecific
   rewriteTarget: /$2
+canary:
+  enabled: true
+  analysis:
+    errorRateThreshold: "0.01"

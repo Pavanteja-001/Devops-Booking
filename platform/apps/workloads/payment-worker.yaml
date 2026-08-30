@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: payment-worker
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/Pavanteja-001/Devops-Booking.git
+      targetRevision: main
+      ref: values
+    - repoURL: https://github.com/Pavanteja-001/Devops-Booking.git
+      targetRevision: main
+      path: platform/charts/seat-service
+      helm:
+        valueFiles:
+          - $values/platform/charts/values/values-payment-worker.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: booking
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,177 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: booking
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: booking
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-frontend
+  namespace: booking
+spec:
+  podSelector: { matchLabels: { app: frontend } }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: ingress-nginx } }
+      ports: [{ protocol: TCP, port: 8080 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-booking-bff
+  namespace: booking
+spec:
+  podSelector: { matchLabels: { app: booking-bff } }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: ingress-nginx } }
+      ports: [{ protocol: TCP, port: 8080 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-seatmap
+  namespace: booking
+spec:
+  podSelector: { matchLabels: { app: seatmap } }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: ingress-nginx } }
+      ports: [{ protocol: TCP, port: 8080 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-bff-to-inventory
+  namespace: booking
+spec:
+  podSelector: { matchLabels: { app: inventory } }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector: { matchLabels: { app: booking-bff } }
+        - podSelector: { matchLabels: { app: seatmap } }
+      ports: [{ protocol: TCP, port: 8080 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-inventory-egress
+  namespace: booking
+spec:
+  podSelector: { matchLabels: { app: inventory } }
+  policyTypes: [Egress]
+  egress:
+    - to: [{ podSelector: { matchLabels: { app: postgres } } }]
+      ports: [{ protocol: TCP, port: 5432 }]
+    - to: [{ podSelector: { matchLabels: { app: redis } } }]
+      ports: [{ protocol: TCP, port: 6379 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-booking-bff-egress
+  namespace: booking
+spec:
+  podSelector: { matchLabels: { app: booking-bff } }
+  policyTypes: [Egress]
+  egress:
+    - to: [{ podSelector: { matchLabels: { app: postgres } } }]
+      ports: [{ protocol: TCP, port: 5432 }]
+    - to: [{ podSelector: { matchLabels: { app: inventory } } }]
+      ports: [{ protocol: TCP, port: 8080 }]
+    - to: [{ podSelector: { matchLabels: { app: elasticmq } } }]
+      ports: [{ protocol: TCP, port: 9324 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-seatmap-egress
+  namespace: booking
+spec:
+  podSelector: { matchLabels: { app: seatmap } }
+  policyTypes: [Egress]
+  egress:
+    - to: [{ podSelector: { matchLabels: { app: inventory } } }]
+      ports: [{ protocol: TCP, port: 8080 }]
+    - to: [{ podSelector: { matchLabels: { app: redis } } }]
+      ports: [{ protocol: TCP, port: 6379 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-payment-worker-egress
+  namespace: booking
+spec:
+  podSelector: { matchLabels: { app: payment-worker } }
+  policyTypes: [Egress]
+  egress:
+    - to: [{ podSelector: { matchLabels: { app: elasticmq } } }]
+      ports: [{ protocol: TCP, port: 9324 }]
+    - to: [{ podSelector: { matchLabels: { app: booking-bff } } }]
+      ports: [{ protocol: TCP, port: 8080 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-settlement-egress
+  namespace: booking
+spec:
+  podSelector: { matchLabels: { app: settlement } }
+  policyTypes: [Egress]
+  egress:
+    - to: [{ podSelector: { matchLabels: { app: postgres } } }]
+      ports: [{ protocol: TCP, port: 5432 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-monitoring-scrape
+  namespace: booking
+spec:
+  podSelector:
+    matchExpressions:
+      - { key: app, operator: In, values: [inventory, booking-bff, seatmap, payment-worker, frontend] }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: monitoring } }
+      ports: [{ protocol: TCP, port: 8080 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-data-layer-ingress
+  namespace: booking
+spec:
+  podSelector:
+    matchExpressions:
+      - { key: app, operator: In, values: [postgres, redis, elasticmq] }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector: { matchLabels: { app: inventory } }
+        - podSelector: { matchLabels: { app: booking-bff } }
+        - podSelector: { matchLabels: { app: seatmap } }
+        - podSelector: { matchLabels: { app: payment-worker } }
+        - podSelector: { matchLabels: { app: settlement } }
