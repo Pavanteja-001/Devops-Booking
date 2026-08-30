@@ -1,5 +1,9 @@
 nameOverride: ""
 
+serviceAccount:
+  create: false
+  roleArn: ""
+
 image:
   repository: ""
   tag: "latest"

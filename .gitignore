@@ -6,3 +6,8 @@ dist/
 target/
 .env
 .DS_Store
+.terraform/
+*.tfstate
+*.tfstate.*
+tfplan
+*.tfvars

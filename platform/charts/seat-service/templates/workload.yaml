@@ -17,6 +17,9 @@ spec:
     metadata:
       labels: {{ include "seat-service.labels" . | nindent 8 }}
     spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ include "seat-service.name" . }}
+      {{- end }}
       securityContext:
         runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
         runAsUser: {{ .Values.securityContext.runAsUser }}
