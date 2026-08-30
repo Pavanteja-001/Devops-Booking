@@ -86,5 +86,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add platform/charts/values/values-${{ matrix.service }}.yaml
-          git diff --cached --quiet || git commit -m "ci: bump ${{ matrix.service }} to ${{ github.sha }}"
-          git push
+          git diff --cached --quiet && exit 0
+          git commit -m "ci: bump ${{ matrix.service }} to ${{ github.sha }}"
+          for i in 1 2 3 4 5; do
+            git push && break
+            git fetch origin main
+            git rebase origin/main
+            sleep $((RANDOM % 5 + 1))
+          done
