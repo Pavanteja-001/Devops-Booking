@@ -1,0 +1,4 @@
+env:
+  QUEUE_URL: "https://sqs.ap-south-1.amazonaws.com/402631154447/payments"
+  AWS_REGION: "ap-south-1"
+  QUEUE_ENDPOINT: ""

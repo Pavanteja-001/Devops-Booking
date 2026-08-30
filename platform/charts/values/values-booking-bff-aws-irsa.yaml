@@ -1,0 +1,3 @@
+serviceAccount:
+  create: true
+  roleArn: "arn:aws:iam::402631154447:role/seat-booking-bff-sqs"

@@ -12,7 +12,7 @@ BFF_ROLE=$(echo "$OUT" | python3 -c "import sys,json; print(json.load(sys.stdin)
 WORKER_ROLE=$(echo "$OUT" | python3 -c "import sys,json; print(json.load(sys.stdin)['payment_worker_irsa_role_arn']['value'])")
 KEDA_ROLE=$(echo "$OUT" | python3 -c "import sys,json; print(json.load(sys.stdin)['keda_irsa_role_arn']['value'])")
 
-VALUES_DIR="../../charts/values"
+VALUES_DIR="../../../charts/values"
 
 for svc in inventory booking-bff seatmap payment-worker frontend settlement; do
   REPO_URL=$(echo "$OUT" | python3 -c "import sys,json; print(json.load(sys.stdin)['ecr_repository_urls']['value']['$svc'])")

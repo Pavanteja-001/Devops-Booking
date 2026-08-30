@@ -9,5 +9,5 @@ target/
 .terraform/
 *.tfstate
 *.tfstate.*
-tfplan
+tfplan*
 *.tfvars

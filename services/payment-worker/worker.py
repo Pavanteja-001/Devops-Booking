@@ -6,19 +6,18 @@ import boto3
 import requests
 from prometheus_client import Counter, start_http_server
 
-QUEUE_URL = os.environ.get("QUEUE_URL", "http://localhost:9324/queue/payments")
+QUEUE_URL = os.environ["QUEUE_URL"]
 BFF_URL = os.environ.get("BFF_URL", "http://localhost:8080")
 INTERNAL_TOKEN = os.environ.get("INTERNAL_TOKEN", "internal-devsecret")
 GATEWAY_DELAY_SECONDS = float(os.environ.get("GATEWAY_DELAY_SECONDS", "3"))
 
 PAYMENTS_PROCESSED = Counter("payments_processed_total", "Payments processed", ["status"])
 
+QUEUE_ENDPOINT = os.environ.get("QUEUE_ENDPOINT")
 sqs = boto3.client(
     "sqs",
-    region_name=os.environ.get("AWS_REGION", "elasticmq"),
-    endpoint_url=os.environ.get("QUEUE_ENDPOINT", "http://localhost:9324"),
-    aws_access_key_id="local",
-    aws_secret_access_key="local",
+    region_name=os.environ.get("AWS_REGION", "ap-south-1"),
+    **({"endpoint_url": QUEUE_ENDPOINT, "aws_access_key_id": "local", "aws_secret_access_key": "local"} if QUEUE_ENDPOINT else {}),
 )
 
 
