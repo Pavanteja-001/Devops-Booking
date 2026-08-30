@@ -1,7 +1,7 @@
 nameOverride: settlement
 image:
   repository: seat-booking/settlement
-  tag: "64d7bcc8cdadad7efd273320cf269b2d5558105b"
+  tag: "64fcbb5c79245ba20a40f47207091f26f4c8bf1c"
 cronjob:
   enabled: true
   schedule: "0 2 * * *"
