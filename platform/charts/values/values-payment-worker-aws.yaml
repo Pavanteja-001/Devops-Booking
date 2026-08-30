@@ -1,6 +1,5 @@
 image:
   repository: "402631154447.dkr.ecr.ap-south-1.amazonaws.com/seat-booking/payment-worker"
-  tag: v2
 serviceAccount:
   create: true
   roleArn: "arn:aws:iam::402631154447:role/seat-booking-payment-worker-sqs"
