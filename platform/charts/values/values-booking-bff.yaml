@@ -1,7 +1,7 @@
 nameOverride: booking-bff
 image:
   repository: seat-booking/booking-bff
-  tag: "64fcbb5c79245ba20a40f47207091f26f4c8bf1c"
+  tag: "9df5cfca0640448cfa77b461e276609b5ba39dd0"
 replicaCount: 2
 port: 8080
 track: stable
