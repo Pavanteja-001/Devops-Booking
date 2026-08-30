@@ -1,13 +1,13 @@
 import React from 'react';
 
-const PRICE_PER_SEAT_USD = 15.0;
+const PRICE_PER_SEAT_USD = 16.0;
 const USD_TO_INR = 83.0;
 
-export default function CheckoutPanel({ 
-  selectedSeats, 
-  onDeselectSeat, 
-  currentShowId, 
-  shows, 
+export default function CheckoutPanel({
+  selectedSeats,
+  onDeselectSeat,
+  currentShowId,
+  shows,
   onOpenRazorpay,
   statusMsg
 }) {
@@ -21,7 +21,7 @@ export default function CheckoutPanel({
       <div className="card-title">
         <span>Ticket Summary</span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2">
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/>
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0" />
         </svg>
       </div>
 
@@ -32,7 +32,7 @@ export default function CheckoutPanel({
           selectedList.map((id) => (
             <div key={id} className="seat-chip">
               <span>{id}</span>
-              <span 
+              <span
                 style={{ cursor: 'pointer', opacity: 0.7 }}
                 onClick={() => onDeselectSeat(id)}
               >
@@ -60,9 +60,9 @@ export default function CheckoutPanel({
         </div>
       </div>
 
-      <button 
-        className="btn-primary" 
-        onClick={onOpenRazorpay} 
+      <button
+        className="btn-primary"
+        onClick={onOpenRazorpay}
         disabled={selectedSeats.size === 0}
         id="book"
         style={{
@@ -71,7 +71,7 @@ export default function CheckoutPanel({
         }}
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
         </svg>
         <span>Proceed to Pay via Razorpay</span>
       </button>
