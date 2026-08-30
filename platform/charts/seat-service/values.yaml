@@ -1,0 +1,72 @@
+nameOverride: ""
+
+image:
+  repository: ""
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+track: stable # set to "canary" only on the temporary values override used to trigger a canary demo
+
+port: 8080
+
+env: {}
+
+envFromSecret: ""
+
+resources:
+  requests: { cpu: 50m, memory: 64Mi }
+  limits: { cpu: 250m, memory: 256Mi }
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+
+probes:
+  liveness: /healthz
+  readiness: /readyz
+
+service:
+  enabled: true
+  port: 8080
+
+ingress:
+  enabled: false
+  path: /
+  pathType: Prefix
+  rewriteTarget: ""
+
+cronjob:
+  enabled: false
+  schedule: "0 2 * * *"
+
+keda:
+  enabled: false
+  authMode: static # "static" for local/kind demo creds, "irsa" once deployed on EKS
+  minReplicaCount: 0
+  maxReplicaCount: 10
+  pollingInterval: 15
+  cooldownPeriod: 60
+  queueURL: ""
+  queueLength: "5"
+  awsRegion: "elasticmq"
+  awsEndpoint: ""
+  staticAccessKeyId: "local"
+  staticSecretAccessKey: "local"
+
+canary:
+  enabled: false
+  service: ""
+  steps:
+    - setWeight: 10
+    - pause: { duration: 1m }
+    - setWeight: 30
+    - pause: { duration: 1m }
+    - setWeight: 60
+    - pause: { duration: 1m }
+    - setWeight: 100
+  analysis:
+    errorRateThreshold: "0.01"

@@ -1,0 +1,20 @@
+{{- if .Values.canary.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "seat-service.name" . }}-error-rate
+spec:
+  metrics:
+    - name: error-rate
+      interval: 30s
+      count: 4
+      successCondition: "result[0] < {{ .Values.canary.analysis.errorRateThreshold }} or isNaN(result[0])"
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
+          query: |
+            (sum(rate(http_requests_total{service="{{ include "seat-service.name" . }}",status=~"5..",version="canary"}[2m])) or on() vector(0))
+            /
+            (sum(rate(http_requests_total{service="{{ include "seat-service.name" . }}",version="canary"}[2m])) or on() vector(0))
+{{- end }}

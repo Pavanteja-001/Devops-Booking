@@ -1,0 +1,92 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports: ["5432:5432"]
+    volumes:
+      - ./platform-local/postgres-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  elasticmq:
+    image: softwaremill/elasticmq-native:1.5.7
+    ports: ["9324:9324"]
+    volumes:
+      - ./platform-local/elasticmq/elasticmq.conf:/opt/elasticmq.conf
+
+  inventory:
+    build: ./services/inventory
+    ports: ["8081:8080"]
+    environment:
+      DATABASE_URL: postgresql://inventory:inventory@postgres:5432/inventory_db
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: devsecret-change-me
+      INTERNAL_TOKEN: internal-devsecret
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+
+  booking-bff:
+    build: ./services/booking-bff
+    ports: ["8082:8080"]
+    environment:
+      DATABASE_URL: postgresql://booking:booking@postgres:5432/booking_db
+      INVENTORY_URL: http://inventory:8080
+      JWT_SECRET: devsecret-change-me
+      INTERNAL_TOKEN: internal-devsecret
+      QUEUE_ENDPOINT: http://elasticmq:9324
+      QUEUE_URL: http://elasticmq:9324/queue/payments
+      AWS_REGION: elasticmq
+    depends_on:
+      postgres: { condition: service_healthy }
+      inventory: { condition: service_started }
+      elasticmq: { condition: service_started }
+
+  seatmap:
+    build: ./services/seatmap
+    ports: ["8083:8080"]
+    environment:
+      INVENTORY_URL: http://inventory:8080
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      inventory: { condition: service_started }
+      redis: { condition: service_started }
+
+  payment-worker:
+    build: ./services/payment-worker
+    ports: ["8084:8080"]
+    environment:
+      BFF_URL: http://booking-bff:8080
+      INTERNAL_TOKEN: internal-devsecret
+      QUEUE_ENDPOINT: http://elasticmq:9324
+      QUEUE_URL: http://elasticmq:9324/queue/payments
+      AWS_REGION: elasticmq
+      GATEWAY_DELAY_SECONDS: "3"
+    depends_on:
+      booking-bff: { condition: service_started }
+      elasticmq: { condition: service_started }
+
+  frontend:
+    build: ./frontend
+    ports: ["8090:80"]
+
+  settlement:
+    build: ./services/settlement
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: booking_db
+      DB_USER: booking
+      DB_PASSWORD: booking
+    depends_on:
+      postgres: { condition: service_healthy }
+    profiles: ["settlement"]

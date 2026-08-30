@@ -1,0 +1,15 @@
+nameOverride: settlement
+image:
+  repository: seat-booking/settlement
+  tag: v1
+cronjob:
+  enabled: true
+  schedule: "0 2 * * *"
+service:
+  enabled: false
+env:
+  DB_HOST: postgres.booking.svc
+  DB_PORT: "5432"
+  DB_NAME: booking_db
+  DB_USER: booking
+  DB_PASSWORD: booking

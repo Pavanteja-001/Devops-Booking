@@ -1,0 +1,21 @@
+nameOverride: inventory
+image:
+  repository: seat-booking/inventory
+  tag: v1
+replicaCount: 2
+port: 8080
+env:
+  DATABASE_URL: postgresql://inventory:inventory@postgres.booking.svc:5432/inventory_db
+  REDIS_URL: redis://redis.booking.svc:6379/0
+  JWT_SECRET: devsecret-change-me
+  INTERNAL_TOKEN: internal-devsecret
+probes:
+  liveness: /healthz
+  readiness: /readyz
+service:
+  enabled: true
+ingress:
+  enabled: false
+resources:
+  requests: { cpu: 100m, memory: 96Mi }
+  limits: { cpu: 750m, memory: 256Mi }

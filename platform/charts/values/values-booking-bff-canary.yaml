@@ -1,0 +1,7 @@
+canary:
+  enabled: true
+  analysis:
+    errorRateThreshold: "0.01"
+track: canary
+env:
+  CHAOS_ERROR_RATE: "0.15"

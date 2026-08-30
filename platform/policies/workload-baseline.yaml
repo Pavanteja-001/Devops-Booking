@@ -1,0 +1,46 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: workload-baseline
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+    - name: require-limits-and-nonroot
+      match:
+        any: [{ resources: { kinds: [Pod], namespaces: [booking] } }]
+      validate:
+        message: "Containers must set resource limits and run as non-root."
+        pattern:
+          spec:
+            containers:
+              - resources:
+                  limits: { memory: "?*", cpu: "?*" }
+                securityContext:
+                  runAsNonRoot: true
+                  allowPrivilegeEscalation: false
+
+    - name: disallow-latest-tag
+      match:
+        any: [{ resources: { kinds: [Pod], namespaces: [booking] } }]
+      validate:
+        message: "Images must be pinned to a digest or an immutable tag, never :latest."
+        pattern:
+          spec:
+            containers:
+              - image: "!*:latest"
+
+    - name: require-probes
+      match:
+        any: [{ resources: { kinds: [Pod], namespaces: [booking] } }]
+      exclude:
+        any: [{ resources: { selector: { matchLabels: { app: settlement } } } }]
+      validate:
+        message: "Containers must define both livenessProbe and readinessProbe."
+        pattern:
+          spec:
+            containers:
+              - livenessProbe:
+                  periodSeconds: ">0"
+                readinessProbe:
+                  periodSeconds: ">0"

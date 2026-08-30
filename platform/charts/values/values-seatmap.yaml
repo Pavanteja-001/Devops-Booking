@@ -1,0 +1,16 @@
+nameOverride: seatmap
+image:
+  repository: seat-booking/seatmap
+  tag: v1
+replicaCount: 1
+port: 8080
+env:
+  INVENTORY_URL: http://inventory.booking.svc:8080
+  REDIS_URL: redis://redis.booking.svc:6379/0
+probes:
+  liveness: /healthz
+  readiness: /readyz
+service:
+  enabled: true
+ingress:
+  enabled: false

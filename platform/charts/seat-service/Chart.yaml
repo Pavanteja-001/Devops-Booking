@@ -1,0 +1,5 @@
+apiVersion: v2
+name: seat-service
+description: Generic chart for every seat-booking workload (HTTP service, worker, or CronJob)
+version: 1.0.0
+appVersion: "1.0.0"

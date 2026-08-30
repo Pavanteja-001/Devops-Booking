@@ -1,0 +1,53 @@
+{{- if .Values.keda.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "seat-service.name" . }}
+spec:
+  scaleTargetRef:
+    name: {{ include "seat-service.name" . }}
+  minReplicaCount: {{ .Values.keda.minReplicaCount }}
+  maxReplicaCount: {{ .Values.keda.maxReplicaCount }}
+  pollingInterval: {{ .Values.keda.pollingInterval }}
+  cooldownPeriod: {{ .Values.keda.cooldownPeriod }}
+  triggers:
+    - type: aws-sqs-queue
+      metadata:
+        queueURL: {{ .Values.keda.queueURL | quote }}
+        queueLength: {{ .Values.keda.queueLength | quote }}
+        awsRegion: {{ .Values.keda.awsRegion | quote }}
+        {{- if .Values.keda.awsEndpoint }}
+        awsEndpoint: {{ .Values.keda.awsEndpoint | quote }}
+        {{- end }}
+        {{- if eq .Values.keda.authMode "irsa" }}
+        identityOwner: operator
+        {{- end }}
+      {{- if eq .Values.keda.authMode "static" }}
+      authenticationRef:
+        name: {{ include "seat-service.name" . }}-keda-auth
+      {{- end }}
+{{- if eq .Values.keda.authMode "static" }}
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: {{ include "seat-service.name" . }}-keda-auth
+spec:
+  secretTargetRef:
+    - parameter: awsAccessKeyID
+      name: {{ include "seat-service.name" . }}-keda-creds
+      key: AWS_ACCESS_KEY_ID
+    - parameter: awsSecretAccessKey
+      name: {{ include "seat-service.name" . }}-keda-creds
+      key: AWS_SECRET_ACCESS_KEY
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "seat-service.name" . }}-keda-creds
+type: Opaque
+stringData:
+  AWS_ACCESS_KEY_ID: {{ .Values.keda.staticAccessKeyId | default "local" | quote }}
+  AWS_SECRET_ACCESS_KEY: {{ .Values.keda.staticSecretAccessKey | default "local" | quote }}
+{{- end }}
+{{- end }}

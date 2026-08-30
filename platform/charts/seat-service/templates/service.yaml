@@ -1,0 +1,39 @@
+{{- if .Values.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "seat-service.name" . }}
+  labels: {{ include "seat-service.labels" . | nindent 4 }}
+spec:
+  selector: {{ include "seat-service.labels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.port }}
+---
+{{- if .Values.canary.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "seat-service.name" . }}-stable
+  labels: {{ include "seat-service.labels" . | nindent 4 }}
+spec:
+  selector: {{ include "seat-service.labels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "seat-service.name" . }}-canary
+  labels: {{ include "seat-service.labels" . | nindent 4 }}
+spec:
+  selector: {{ include "seat-service.labels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.port }}
+{{- end }}
+{{- end }}

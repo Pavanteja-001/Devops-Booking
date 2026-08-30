@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: booking
+data:
+  01-init.sql: |
+    CREATE DATABASE inventory_db;
+    CREATE DATABASE booking_db;
+
+    CREATE USER inventory WITH PASSWORD 'inventory';
+    CREATE USER booking WITH PASSWORD 'booking';
+
+    GRANT ALL PRIVILEGES ON DATABASE inventory_db TO inventory;
+    GRANT ALL PRIVILEGES ON DATABASE booking_db TO booking;
+
+    \connect inventory_db
+
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      username TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS shows (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      starts_at TIMESTAMPTZ NOT NULL
+    );
+
+    INSERT INTO shows (id, title, starts_at) VALUES
+      ('s1', 'Inception - 7:00 PM', now() + interval '1 day'),
+      ('s2', 'Interstellar - 9:30 PM', now() + interval '2 day')
+    ON CONFLICT DO NOTHING;
+
+    GRANT USAGE ON SCHEMA public TO inventory;
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO inventory;
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO inventory;
+
+    \connect booking_db
+
+    CREATE TABLE IF NOT EXISTS bookings (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      username TEXT NOT NULL,
+      show_id TEXT NOT NULL,
+      hold_id TEXT NOT NULL,
+      seats TEXT[] NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending_payment',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      settled_at TIMESTAMPTZ
+    );
+
+    GRANT USAGE ON SCHEMA public TO booking;
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO booking;
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO booking;
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: booking
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: postgres } }
+  template:
+    metadata: { labels: { app: postgres } }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          env:
+            - { name: POSTGRES_USER, value: "postgres" }
+            - { name: POSTGRES_PASSWORD, value: "postgres" }
+          ports: [{ containerPort: 5432 }]
+          volumeMounts:
+            - { name: init, mountPath: /docker-entrypoint-initdb.d }
+          readinessProbe:
+            exec: { command: ["pg_isready", "-U", "postgres"] }
+            periodSeconds: 5
+      volumes:
+        - name: init
+          configMap: { name: postgres-init }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: booking
+spec:
+  selector: { app: postgres }
+  ports: [{ port: 5432, targetPort: 5432 }]

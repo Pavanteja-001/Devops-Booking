@@ -1,0 +1,21 @@
+nameOverride: frontend
+image:
+  repository: seat-booking/frontend
+  tag: v1
+replicaCount: 1
+port: 8080
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 101
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+probes:
+  liveness: "/"
+  readiness: "/"
+service:
+  enabled: true
+  port: 80
+ingress:
+  enabled: true
+  path: /
+  pathType: Prefix

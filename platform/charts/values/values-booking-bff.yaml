@@ -1,0 +1,26 @@
+nameOverride: booking-bff
+image:
+  repository: seat-booking/booking-bff
+  tag: v1
+replicaCount: 2
+port: 8080
+track: stable
+env:
+  DATABASE_URL: postgresql://booking:booking@postgres.booking.svc:5432/booking_db
+  INVENTORY_URL: http://inventory.booking.svc:8080
+  JWT_SECRET: devsecret-change-me
+  INTERNAL_TOKEN: internal-devsecret
+  QUEUE_ENDPOINT: http://elasticmq.booking.svc:9324
+  QUEUE_URL: http://elasticmq.booking.svc:9324/queue/payments
+  AWS_REGION: elasticmq
+  INVENTORY_TIMEOUT_MS: "5000"
+probes:
+  liveness: /healthz
+  readiness: /readyz
+service:
+  enabled: true
+ingress:
+  enabled: true
+  path: /bff(/|$)(.*)
+  pathType: ImplementationSpecific
+  rewriteTarget: /$2
