@@ -18,6 +18,7 @@ spec:
           - $values/platform/charts/values/values-booking-bff-aws.yaml
           - $values/platform/charts/values/values-booking-bff-aws-irsa.yaml
           - $values/platform/charts/values/values-booking-bff-aws-queue.yaml
+          - $values/platform/charts/values/values-booking-bff-canary.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: booking
