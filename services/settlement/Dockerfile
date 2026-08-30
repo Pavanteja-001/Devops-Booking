@@ -5,6 +5,7 @@ COPY src ./src
 RUN mvn -q -DskipTests package
 
 FROM eclipse-temurin:21-jre-alpine
+RUN apk update && apk upgrade --no-cache
 RUN adduser -D -u 10001 appuser
 COPY --from=build /src/target/settlement-1.0.0.jar /app/app.jar
 USER 10001
