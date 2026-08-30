@@ -1,7 +1,7 @@
 nameOverride: seatmap
 image:
   repository: seat-booking/seatmap
-  tag: "9df5cfca0640448cfa77b461e276609b5ba39dd0"
+  tag: "b898d2c489bd104b9e76bba073bbd5cb6b67c807"
 replicaCount: 1
 port: 8080
 env:
