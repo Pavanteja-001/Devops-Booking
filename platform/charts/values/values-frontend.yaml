@@ -1,7 +1,7 @@
 nameOverride: frontend
 image:
   repository: seat-booking/frontend
-  tag: v1
+  tag: "5bead2f63974d061de684dae2a1a5de9257b33c6"
 replicaCount: 1
 port: 8080
 securityContext:
