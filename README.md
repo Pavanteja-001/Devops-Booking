@@ -48,19 +48,16 @@ rather than aspirational.
 
 ---
 
-## What's actually running right now
+## Status
 
-These are live only while the AWS demo environment is up — check
-[`docs/COMPLETE-REFERENCE.md`](docs/COMPLETE-REFERENCE.md) §17 for how to
-get fresh links after any redeploy, since Load Balancer hostnames and
-Grafana/Argo CD passwords change every time.
+The AWS demo environment (EKS, load balancers, Argo CD, Grafana) was
+provisioned, tested end-to-end, recorded, and **torn down** afterward — this
+is a portfolio project, not a service kept running. Every command needed to
+stand it back up from zero is in [`docs/aws-runbook.md`](docs/aws-runbook.md);
+a full account of what was actually built and every real bug hit along the
+way is in [`docs/COMPLETE-REFERENCE.md`](docs/COMPLETE-REFERENCE.md).
 
-| | |
-|---|---|
-| The app | ephemeral AWS NLB — see reference doc |
-| Argo CD | ephemeral AWS NLB — see reference doc |
-| Grafana | ephemeral AWS NLB — see reference doc |
-| CI pipeline | [GitHub Actions](../../actions) |
+The CI pipeline itself is always live and reviewable: [GitHub Actions](../../actions).
 
 ---
 

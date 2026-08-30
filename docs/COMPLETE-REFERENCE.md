@@ -300,7 +300,7 @@ hang or leave orphaned ELBs/ENIs.
 ### Argo CD (GitOps)
 - **URL:** `https://a74718aeff9554db3be047dd5980b01c-42622565.ap-south-1.elb.amazonaws.com` (self-signed cert, browser will warn — click through)
 - **Username:** `admin`
-- **Password:** `5tpNFMvDXcKX87tp` (get fresh anytime: `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d`)
+- **Password:** (redacted — regenerated on every fresh deploy) fetch with: `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d`
 - Exposed via `kubectl -n argocd patch svc argocd-server -p '{"spec":{"type":"LoadBalancer"}}'` (starts as ClusterIP by default)
 - **App-of-apps pattern:** one `root` Application (`platform/apps/root.yaml`)
   watches `platform/apps/workloads/` in git, which contains one Application
@@ -350,7 +350,7 @@ hang or leave orphaned ELBs/ENIs.
 
 ### kube-prometheus-stack (Prometheus + Grafana + Alertmanager)
 - **Grafana URL:** `http://a324ee54c32c3492b8116ae24632b479-1581851099.ap-south-1.elb.amazonaws.com`
-- **Username:** `admin` / **Password:** `admin` (default — not overridden this deployment; get fresh anytime: `kubectl -n monitoring get secret kube-prometheus-stack-grafana -o jsonpath='{.data.admin-password}' | base64 -d`)
+- **Username:** `admin` / **Password:** (redacted — set via `--set grafana.adminPassword=...` at install time, or left as the chart default) fetch with: `kubectl -n monitoring get secret kube-prometheus-stack-grafana -o jsonpath='{.data.admin-password}' | base64 -d`
 - Exposed via the same LoadBalancer patch pattern as Argo CD
 - Prometheus scrapes every HTTP service in `booking` via a `ServiceMonitor`
   the Helm chart creates automatically per-service (`templates/servicemonitor.yaml`)
@@ -775,16 +775,18 @@ Full step-by-step commands: `docs/aws-runbook.md`.
 
 ## 17. Quick reference — every access point, all in one place
 
-| What | How to reach it |
+**The AWS environment described in this document has been torn down** (via
+`./platform/terraform/teardown.sh` + `terraform destroy`) after recording —
+none of the Load Balancer hostnames or credentials that existed while it was
+live are valid anymore, and none are recorded here since this repo is
+public. To stand it back up and get fresh values for everything below,
+follow `docs/aws-runbook.md` from the top.
+
+| What | How to reach it (after redeploying) |
 |---|---|
-| The app | `http://af741d2e36467496f95c6c5eb56622c3-4ad65490ac5dec0b.elb.ap-south-1.amazonaws.com` |
-| Argo CD | `https://a74718aeff9554db3be047dd5980b01c-42622565.ap-south-1.elb.amazonaws.com` — admin / `5tpNFMvDXcKX87tp` |
-| Grafana | `http://a324ee54c32c3492b8116ae24632b479-1581851099.ap-south-1.elb.amazonaws.com` — admin / admin |
+| The app | `kubectl -n ingress-nginx get svc ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'` |
+| Argo CD | expose + fetch password per §9 above |
+| Grafana | expose + fetch password per §9 above |
 | GitHub repo | https://github.com/Pavanteja-001/Devops-Booking |
 | GitHub Actions | https://github.com/Pavanteja-001/Devops-Booking/actions |
 | kubectl | `aws eks update-kubeconfig --name seat-booking --region ap-south-1` (with `AWS_PROFILE=terraform-admin`) |
-
-**Note on these URLs/credentials:** all of the above are ephemeral —
-they belong to Load Balancers and secrets that get destroyed by
-`teardown.sh`. After any teardown + redeploy, every URL and the Grafana/Argo CD
-passwords will be different; re-fetch them with the commands shown in §9.
