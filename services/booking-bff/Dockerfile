@@ -5,6 +5,7 @@ RUN npm install --omit=dev
 
 FROM node:22-slim
 RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 RUN useradd -u 10001 -m appuser
 WORKDIR /app
 COPY --from=build /app/node_modules ./node_modules
